@@ -1,0 +1,136 @@
+StimulationCondition	PartnerType	OfferType	PlayerChoice	PlayerReactionTime
+2	 	Keep $9, Give $1	Accept	1002.4171
+2	Rating 5/5	Keep $6, Give $4	Accept	1352.8401
+2	Rating: 3/5	Keep $9, Give $1	Reject	1169.2852
+2	Rating: 3/5	Keep $7, Give $3	Accept	1269.406
+2	Rating 5/5	Keep $5, Give $5	Accept	1336.1533
+2	 	Keep $7, Give $3	Accept	935.6699
+2	 	Keep $5, Give $5	Accept	752.115
+2	Rating 5/5	Keep $9, Give $1	Reject	818.8622
+2	 	Keep $6, Give $4	Accept	1019.1039
+2	 	Keep $6, Give $4	Accept	568.5601
+2	 	Keep $5, Give $5	Accept	668.6809
+2	Rating: 3/5	Keep $6, Give $4	Accept	1119.2248
+2	 	Keep $7, Give $3	Reject	1152.5984
+2	Rating: 3/5	Keep $8, Give $2	Reject	835.549
+2	 	Keep $9, Give $1	Reject	868.9226
+2	 	Keep $5, Give $5	Accept	1019.1039
+2	Rating: 3/5	Keep $5, Give $5	Accept	618.6205
+2	 	Keep $8, Give $2	Reject	1669.8895
+2	 	Keep $9, Give $1	Reject	618.6205
+2	Rating: 3/5	Keep $7, Give $3	Accept	785.4886
+2	Rating: 3/5	Keep $6, Give $4	Accept	618.6205
+2	Rating 5/5	Keep $7, Give $3	Accept	1069.1643
+2	Rating 5/5	Keep $6, Give $4	Accept	568.5601
+2	 	Keep $8, Give $2	Reject	685.3677
+2	Rating: 3/5	Keep $6, Give $4	Accept	1019.1039
+2	Rating 5/5	Keep $6, Give $4	Accept	401.692
+2	Rating 5/5	Keep $9, Give $1	Reject	935.6699
+2	 	Keep $8, Give $2	Reject	952.3567
+2	Rating 5/5	Keep $7, Give $3	Accept	885.6094
+2	Rating 5/5	Keep $5, Give $5	Accept	518.4996
+2	Rating: 3/5	Keep $7, Give $3	Accept	835.549
+2	Rating: 3/5	Keep $9, Give $1	Reject	635.3073
+2	Rating 5/5	Keep $5, Give $5	Accept	685.3677
+2	Rating 5/5	Keep $8, Give $2	Reject	1102.538
+2	Rating 5/5	Keep $9, Give $1	Reject	1219.3456
+2	Rating: 3/5	Keep $5, Give $5	Accept	835.549
+2	Rating: 3/5	Keep $9, Give $1	Reject	668.6809
+2	 	Keep $6, Give $4	Accept	785.4886
+2	Rating: 3/5	Keep $5, Give $5	Accept	468.4392
+2	Rating 5/5	Keep $8, Give $2	Reject	1202.6588
+2	Rating 5/5	Keep $7, Give $3	Accept	852.2358
+2	Rating 5/5	Keep $8, Give $2	Reject	1169.2852
+2	Rating: 3/5	Keep $8, Give $2	Accept	685.3677
+2	Rating: 3/5	Keep $8, Give $2	Accept	752.115
+2	 	Keep $7, Give $3	Accept	1586.4554
+3	Rating: 3/5	Keep $8, Give $2	Accept	852.2358
+3	Rating 5/5	Keep $5, Give $5	Accept	651.9941
+3	 	Keep $9, Give $1	Reject	1052.4775
+3	 	Keep $7, Give $3	Accept	835.549
+3	Rating: 3/5	Keep $7, Give $3	Accept	618.6205
+3	Rating 5/5	Keep $5, Give $5	Accept	868.9226
+3	 	Keep $9, Give $1	Reject	668.6809
+3	Rating: 3/5	Keep $7, Give $3	Accept	752.115
+3	Rating 5/5	Keep $9, Give $1	Reject	1319.4665
+3	 	Keep $5, Give $5	Accept	551.8733
+3	Rating: 3/5	Keep $8, Give $2	Reject	835.549
+3	Rating: 3/5	Keep $9, Give $1	Reject	535.1864
+3	Rating 5/5	Keep $8, Give $2	Reject	1069.1643
+3	 	Keep $6, Give $4	Accept	568.5601
+3	Rating 5/5	Keep $6, Give $4	Accept	802.1754
+3	 	Keep $9, Give $1	Reject	802.1754
+3	Rating: 3/5	Keep $7, Give $3	Accept	768.8018
+3	Rating 5/5	Keep $7, Give $3	Accept	535.1864
+3	Rating 5/5	Keep $6, Give $4	Accept	1219.3456
+3	 	Keep $8, Give $2	Accept	835.549
+3	 	Keep $8, Give $2	Reject	935.6699
+3	Rating 5/5	Keep $8, Give $2	Reject	835.549
+3	Rating: 3/5	Keep $5, Give $5	Accept	668.6809
+3	Rating: 3/5	Keep $9, Give $1	Reject	618.6205
+3	 	Keep $7, Give $3	Accept	985.7303
+3	Rating: 3/5	Keep $6, Give $4	Accept	651.9941
+3	 	Keep $7, Give $3	Accept	902.2962
+3	Rating: 3/5	Keep $6, Give $4	Accept	435.0656
+3	Rating: 3/5	Keep $6, Give $4	Accept	401.692
+3	 	Keep $8, Give $2	Reject	601.9337
+3	Rating 5/5	Keep $9, Give $1	Reject	885.6094
+3	Rating: 3/5	Keep $5, Give $5	Accept	952.3567
+3	Rating 5/5	Keep $7, Give $3	Reject	1302.7797
+3	Rating 5/5	Keep $8, Give $2	Reject	1169.2852
+3	 	Keep $6, Give $4	Accept	518.4996
+3	Rating 5/5	Keep $9, Give $1	Reject	618.6205
+3	 	Keep $6, Give $4	Accept	918.9831
+3	Rating 5/5	Keep $6, Give $4	Accept	1052.4775
+3	 	Keep $5, Give $5	Accept	768.8018
+3	 	Keep $5, Give $5	Accept	1052.4775
+3	Rating 5/5	Keep $5, Give $5	Accept	635.3073
+3	Rating 5/5	Keep $7, Give $3	Accept	1219.3456
+3	Rating: 3/5	Keep $9, Give $1	Reject	1603.1422
+3	Rating: 3/5	Keep $8, Give $2	Reject	1286.0929
+3	Rating: 3/5	Keep $5, Give $5	Accept	1202.6588
+1	Rating 5/5	Keep $6, Give $4	Accept	1019.1039
+1	 	Keep $8, Give $2	Reject	1119.2248
+1	 	Keep $9, Give $1	Reject	852.2358
+1	 	Keep $6, Give $4	Accept	752.115
+1	Rating 5/5	Keep $5, Give $5	Accept	1419.5873
+1	Rating: 3/5	Keep $5, Give $5	Accept	685.3677
+1	 	Keep $9, Give $1	Reject	868.9226
+1	Rating: 3/5	Keep $5, Give $5	Accept	868.9226
+1	Rating 5/5	Keep $5, Give $5	Accept	585.2469
+1	Rating: 3/5	Keep $9, Give $1	Reject	818.8622
+1	Rating 5/5	Keep $7, Give $3	Accept	785.4886
+1	 	Keep $7, Give $3	Accept	718.7413
+1	Rating 5/5	Keep $5, Give $5	Accept	668.6809
+1	 	Keep $9, Give $1	Reject	785.4886
+1	 	Keep $5, Give $5	Accept	585.2469
+1	 	Keep $5, Give $5	Accept	935.6699
+1	Rating: 3/5	Keep $8, Give $2	Reject	1302.7797
+1	 	Keep $8, Give $2	Reject	618.6205
+1	 	Keep $6, Give $4	Accept	802.1754
+1	 	Keep $7, Give $3	Accept	1503.0214
+1	Rating: 3/5	Keep $6, Give $4	Accept	752.115
+1	Rating: 3/5	Keep $6, Give $4	Accept	802.1754
+1	 	Keep $7, Give $3	Accept	1119.2248
+1	Rating 5/5	Keep $9, Give $1	Reject	885.6094
+1	Rating 5/5	Keep $8, Give $2	Reject	1152.5984
+1	Rating 5/5	Keep $8, Give $2	Reject	835.549
+1	Rating: 3/5	Keep $6, Give $4	Accept	1169.2852
+1	Rating 5/5	Keep $7, Give $3	Accept	1386.2137
+1	Rating: 3/5	Keep $7, Give $3	Accept	868.9226
+1	Rating: 3/5	Keep $7, Give $3	Accept	818.8622
+1	Rating: 3/5	Keep $8, Give $2	Reject	785.4886
+1	 	Keep $5, Give $5	Accept	735.4282
+1	Rating 5/5	Keep $9, Give $1	Reject	618.6205
+1	Rating: 3/5	Keep $7, Give $3	Accept	485.126
+1	Rating 5/5	Keep $7, Give $3	Accept	435.0656
+1	Rating 5/5	Keep $9, Give $1	Reject	735.4282
+1	Rating: 3/5	Keep $9, Give $1	Reject	785.4886
+1	Rating 5/5	Keep $6, Give $4	Accept	735.4282
+1	Rating: 3/5	Keep $9, Give $1	Reject	702.0545
+1	Rating 5/5	Keep $8, Give $2	Reject	685.3677
+1	Rating 5/5	Keep $6, Give $4	Accept	651.9941
+1	Rating: 3/5	Keep $8, Give $2	Reject	752.115
+1	 	Keep $8, Give $2	Reject	735.4282
+1	Rating: 3/5	Keep $5, Give $5	Accept	685.3677
+1	 	Keep $6, Give $4	Accept	568.5601
