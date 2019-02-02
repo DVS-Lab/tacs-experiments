@@ -130,7 +130,7 @@ acTPJ.conditions(1).starstim.phase     = [0 180 180 180 0 0 0 0];
 acTPJ.conditions(1).starstim.sham      = false;
 acTpjBlock = block('acTPJ',acTPJ,'nrRepeats',TRIALS_PER_BLOCK,...
                    'beforeKeyPress',false,'afterKeyPress',false);
-% Condition 2
+% Condition 2 
 acDLPFC = design('AC_DLPFC');
 acDLPFC.conditions(1).starstim.type      = 'tACS';
 acDLPFC.conditions(1).starstim.amplitude = tacs_dlpfc_stim_array(tacs_amplitude);

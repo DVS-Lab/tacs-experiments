@@ -1,22 +1,23 @@
 function  c = run
-% tACS Social Norms 
-% Participants play modified ultimatum game with chance of punishment.
-% Participants have a binary choice of which option to accept.
-% When their is punishment, the chance for punishment is displayed.
+% tACS Fairness Herding
+% Participants play modified ultimatum game with social information.
+% Participants have choice to accept or reject offer.
+% When their is social information, the ration for participants who
+% accepted the offer is displayed.
 % Controls:
 % - 'f'       left option
 % - 'g'       right option
-% Screen Order:   
-% - Inform Screen:       2s
+% Screen Order:
+% - Inform Screen:       1.5s
 % - Decision Screen:     3s
-% - Outcome Sc reen:     1s
+% - Outcome Screen:      1s
 % - ITI Fixation Screen: 1s
 %
 % We combine this with stimulation of the DLPFC and the TPJ.
 % In each game block, stimulation is conditions 1-5.
 % Stimulation is off during fixation blocks.
 % 
-% Stimulation Conditions: 
+% Stimulation Conditions:
 % acTpjBlock = 1, acDlpfcBlock = 2,
 % acSyncBlock = 3, shamBlock = 4, break2Min = 5(9 in output file).
 % 
@@ -26,7 +27,7 @@ import neurostim.*;
 %% General Parameters
 subjectID      = '999'; 
 hostNameOrIP   = '10.109.10.247'; % Update with actual IP address of starstim PC.
-practice       = false; 
+practice       = false;
 stimOn         = false;
 tacs_amplitude = 1999;  
 
@@ -38,17 +39,17 @@ itiDuration      = 1000;
 
 %% Behavioral Paradigm 
 numberSocialOptions = 2;
-numberPunishmentOptions = 3;
-numberOfferOptions = 6;
-TRIALS_PER_BREAK = 17; % Balances out to 1:59 min duration break per block
+numberHerdOptions   = 3;
+numberOfferOptions  = 8;
+TRIALS_PER_BREAK    = 17;
 
 if practice == true
-    subjectID    = '999';
+    subjectID     = '999';
     NUMBER_BLOCKS = 1; 
-    TRIALS_PER_BLOCK = 36; % Can make smaller if takes too long
+    TRIALS_PER_BLOCK = 48; % Can make smaller if takes too long
 else
     NUMBER_BLOCKS = 4; 
-    TRIALS_PER_BLOCK = 36;   
+    TRIALS_PER_BLOCK = 48;   
 end
 
 %% Stimulation Parameters
@@ -56,7 +57,7 @@ protocolName = 'rDLPFCrTPJ';
 stimFileFolder = 'c:/temp/'; % Folder on the starstim machine where data
                              % are saved (must exist)
 stimFrequency = 10; % Hz
-rampTime = 500;     % milliseconds       
+rampTime = 500;                  
 debugFlag = false;
 eyelinkFlag = false;
 
@@ -65,36 +66,35 @@ c = klabRig('debug',debugFlag,'eyelink', eyelinkFlag);
 c.screen.colorMode        = 'RGB'; % Specify colors as RGB gunvalue sbetween 0 and 1 (uncalibrated).
 c.screen.color.text       = [1 1 1];  % Block/Start text
 c.screen.color.background = [0.15 0.15 0.15];
-c.dirs.output = 'c:/temp/';
-c.screen.type = 'GENERIC';
-c.itiClear    = 0;
-c.iti         = 1000; % milliseconds
-c.paradigm    = 'tacs-social-norms';
+c.dirs.output             = 'c:/temp/';
+c.screen.type             = 'GENERIC';
+c.itiClear                = 0;
+c.iti                     = 1000;
+c.paradigm                = 'tacs-social-norms';
 % Define total trial duration
-c.trialDuration = '@game.decisionDuration + game.informDuration + game.outcomeDuration + game.itiDuration';
+c.trialDuration = '@game.decisionDuration + game.informDuration + game.outcomeDuration';
 
-%% Setup fixation star.
+%% Setup a fixation star.
 fix = neurostim.stimuli.fixation(c,'fix');
 fix.shape = 'star';
 fix.size = 0.25;
 fix.color = [1 1 1];
 fix.duration = inf;
 
-%% Setup game stimulus
-sng                  = socialnormsgames(c,'game');
-sng.informDuration   = informDuration;
-sng.decisionDuration = decisionDuration;
-sng.outcomeDuration  = outcomeDuration;
-sng.itiDuration      = itiDuration;
+%% Setup the social norms games(Ultimatum & Dictator) stimulus
+fhg                  = fairnessherdinggame(c,'game');
+fhg.informDuration   = informDuration;
+fhg.decisionDuration = decisionDuration;
+fhg.outcomeDuration  = outcomeDuration;
 
 
 %% Setup output file
 % Create and Pass filename to socialnorms games object
 outputFileName = strcat(subjectID,'_results.tsv');
-outputFileName = strcat('tacs-social-norms\experiments-master\Matt\socialnorms\output\',outputFileName);
-sng.fileName = outputFileName;
+outputFileName = strcat('tacs-social-norms\experiments-master\Matt\fairnessherding\output\',outputFileName);
+fhg.fileName = outputFileName;
 % Save header to output file
-header = 'Stim\tSocial\tPunishment\tOffer\tChoice\tPunishment\r\n';
+header = 'Stim\tSocial\tHerd\tOffer\tChoice\r\n';
 outputFile = fopen(outputFileName,'a'); 
 fprintf(outputFile,header);
 fclose(outputFile);
@@ -160,7 +160,7 @@ sham.conditions(1).starstim.phase     = [0 180 180 180 180 180 180 0];
 sham.conditions(1).starstim.sham      = true;
 shamBlock = block('sham',sham,'nrRepeats',TRIALS_PER_BLOCK,'beforeKeyPress',false,'afterKeyPress',false);
 
-% Condition 5 (Denoted as 9 in output file)
+% Condition 5
 break2min = design('BREAK2MIN');
 break2min.conditions(1).starstim.enabled = false;
 breakBlock = block('break2min',break2min,'nrRepeats',TRIALS_PER_BREAK,'beforeKeyPress',false,'afterKeyPress',false);
@@ -199,11 +199,12 @@ for blockTypeIndex = 1:NUMBER_BLOCKS+(NUMBER_BLOCKS-1)
                 stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BREAK)];
     end
 end
+
 %% Trial Conditions
 % Determine order of each condition type per trial
-trialConditionData = int8.empty(0,3); % [social type, punishment type, offer type]
+trialConditionData = int8.empty(0,3); % [social type, herd type, offer type]
 % Acquire all possible permutations
-conditionPermutations = fullfact([numberSocialOptions numberPunishmentOptions numberOfferOptions]);
+conditionPermutations = fullfact([numberSocialOptions numberHerdOptions numberOfferOptions]);
 
 for i = 1:NUMBER_BLOCKS
     rng('shuffle');
@@ -214,11 +215,12 @@ for i = 1:NUMBER_BLOCKS
             9 * ones(TRIALS_PER_BREAK,3)];
     end
 end
-% Assign the each trials game type (gameOrder) and each trials stim type
-% (stimConditions) of each trial to our social norms games object
-% instance sng.
-sng.trialConditionData = trialConditionData;
-sng.stimConditions     = stimConditions;
+% Pass the trial conditions and stim conditions to game 
+% stimConditions is just used for logging purposes in fairnessherdinggame.m
+% trialConditionData is used to determine the conditions for each trial in
+% fairnessherdinggame.m
+fhg.trialConditionData = trialConditionData;
+fhg.stimConditions     = stimConditions;
 
 %% Run the experiment
 if practice == true

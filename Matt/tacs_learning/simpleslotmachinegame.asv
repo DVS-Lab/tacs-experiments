@@ -19,9 +19,10 @@ classdef simpleslotmachinegame < neurostim.stimulus
         payout@logical = false; % Decide if subject won money
         punishmentSelected@logical = false;
         trialLogged@logical = false;
-        trialCounter = 1; 
+        trialCounter = 0; 
         stimulationConditions = [];
         positions = [];
+        blockNumber = []
     end
     
     methods
@@ -32,13 +33,13 @@ classdef simpleslotmachinegame < neurostim.stimulus
             % Define properties that will be logged.
             o.addProperty('file', NaN);
             o.addProperty('fileName', NaN);
-            o.addProperty('highPayoutMachinePosition', NaN);
-            o.addProperty('lowPayoutMachinePosition', NaN);
+            o.addProperty('leftMachinePosition', [609 405 879 675]);
+            o.addProperty('rightMachinePosition', [1041 405 1311 675]);
             o.addProperty('highPayoutMachineTexture', NaN);
             o.addProperty('lowPayoutMachineTexture', NaN);
             o.addProperty('highPayoutMachineDownImage', NaN);
             o.addProperty('lowPayoutMachineDownImage', NaN); 
-            o.addProperty('highPayoutMachineUpImage', NaN);  
+            o.addProperty('highPayoutMachineUpImage', NaN);
             o.addProperty('lowPayoutMachineUpImage', NaN);   
             o.addProperty('highPayoutMachineImageTexture', NaN);
             o.addProperty('lowPayoutMachineImageTexture', NaN);
@@ -46,7 +47,7 @@ classdef simpleslotmachinegame < neurostim.stimulus
             o.addProperty('moneyTexture', NaN);
             o.addProperty('playerChoice', NaN);
             o.addProperty('playerReactionTime', NaN); 
-            o.addProperty('decisionDuration',NaN);    
+            o.addProperty('decisionDuration',NaN);
             o.addProperty('itiDuration', NaN);
             o.addProperty('defaultTextColor',[1 1 1]);
             o.addProperty('fontSize',32);
@@ -55,11 +56,11 @@ classdef simpleslotmachinegame < neurostim.stimulus
             % Find keycode values in the kbName class. 
             % right click on kbName and go to open "kbName"
             if ispc
-                o.addProperty('fKey', 70);
-                o.addProperty('gKey', 71);
+                o.addProperty('oneKey', 49);
+                o.addProperty('zeroKey', 48);
             elseif ismac 
-                o.addProperty('fKey', 9);
-                o.addProperty('gKey', 10);
+                o.addProperty('oneKey', 49);
+                o.addProperty('zeroKey', 48);
             end
         end
         
@@ -67,6 +68,7 @@ classdef simpleslotmachinegame < neurostim.stimulus
         % Called before each trial to log data from previous trial and 
         % reset appropriate fields.
         function beforeTrial(o,~,~)
+            o.trialCounter = o.trialCounter + 1;
             % Reset Fields
             o.trialLogged = false;
             o.chose = false; 
@@ -74,28 +76,18 @@ classdef simpleslotmachinegame < neurostim.stimulus
             o.playerChoice = NaN;
             o.playerReactionTime = NaN;
             
-            % Assign Partner Type Condition
-            if o.positions(o.trialCounter) == 1 % Low Rated
-                o.highPayoutMachinePosition = randi([0 33],1);
-                o.lowPayoutMachinePosition = 'Accepted';
-            else
-                o.highPayoutMachinePosition = randi([0 33],1);
-                o.lowPayoutMachinePosition = 'Accepted';
-            end
-            
             % Machine's start at default 'down' position
             o.highPayoutMachineTexture = Screen('MakeTexture',o.window,...
-                o.highPayoutMachineDownImage);
+                o.highPayoutMachineUpImage);
             o.lowPayoutMachineTexture = Screen('MakeTexture',o.window,...
-                o.lowPayoutMachineDownImage);
+                o.lowPayoutMachineUpImage);
             
         end
         
         %% Executes every frame
-        function beforeFrame(o,~,~)      
+        function beforeFrame(o,~,~)
             % Mark trial time
             now  = o.cic.trialTime;
-
             % Check for response if decision has yet to be made and the
             % decision duration has not elapsed.
             [~,~,keyCode] = KbCheck;  
@@ -104,38 +96,46 @@ classdef simpleslotmachinegame < neurostim.stimulus
             if now < o.itiDuration + o.decisionDuration...
                     && now > o.itiDuration...
                     && ~o.chose
-                if ch == o.fKey
+                if ch == o.oneKey
                     % Mark reaction time
                     o.playerReactionTime =...
                         now - o.itiDuration;
-                    o.playerChoice = 'Accept'; % Player chooses to give 10.
                     o.chose = true; % Update trial state
                     % Update UI properties
                     if o.positions(o.trialCounter) == 1
                         o.highPayoutMachineTexture = Screen('MakeTexture',o.window,...
-                            o.highPayoutMachineUpImage);
-                        if rand > .3
+                            o.highPayoutMachineDownImage);
+                        if rand > .25
                             o.payout = true;
                         end
+                        o.playerChoice = 'High'; % Player chooses to give 10.
                     else
                         o.lowPayoutMachineTexture = Screen('MakeTexture',o.window,...
-                            o.lowPayoutMachineUpImage);
-                        if rand <= .3
+                            o.lowPayoutMachineDownImage);
+                        if rand <= .25
                             o.payout = true;
                         end
+                        o.playerChoice = 'Low';
                     end
-                elseif ch == o.gKey
+                elseif ch == o.zeroKey
                     o.playerReactionTime =...
                         now - o.itiDuration;
-                    o.playerChoice = 'Reject';
                     o.chose = true;
                     % Update UI properties
-                    if o.positions(o.trialCounter) == 2
-                        o.highPayoutMachineTexture = Screen('MakeTexture',o.window,...
-                            o.highPayoutMachineUpImage);
-                    else
+                    if o.positions(o.trialCounter) == 1
                         o.lowPayoutMachineTexture = Screen('MakeTexture',o.window,...
-                            o.lowPayoutMachineUpImage);
+                            o.lowPayoutMachineDownImage);
+                        if rand <= .25
+                            o.payout = true;
+                        end
+                        o.playerChoice = 'Low';
+                    else
+                        o.highPayoutMachineTexture = Screen('MakeTexture',o.window,...
+                            o.highPayoutMachineDownImage);
+                        if rand > .25
+                            o.payout = true;
+                        end
+                        o.playerChoice = 'High';
                     end
                 end
             end
@@ -143,6 +143,18 @@ classdef simpleslotmachinegame < neurostim.stimulus
             % Still no guess since preround screen, list as n/a
             if ~o.chose && (now > 0.99*(o.itiDuration + o.decisionDuration))
                 o.playerChoice = 'n/a';
+                % Log choice(machine type), outcome(if got money), 
+                trialData =...
+                    {num2str(o.trialCounter),num2str(o.blockNumber(o.trialCounter)),...
+                       num2str(o.stimulationConditions(o.trialCounter)),...
+                       o.playerChoice, num2str(o.playerReactionTime)};
+                trialData = trialData.';
+                file = fopen(o.fileName,'a');
+                fprintf(file,'%s\t%s\t%s\t%s\t%s\r\n',...
+                    trialData{:});
+                fclose(file);
+                % Update data fields
+                o.trialLogged = true;
             end
             
             % Diplay ITI Screen. t = [0s,1s)
@@ -163,10 +175,17 @@ classdef simpleslotmachinegame < neurostim.stimulus
                 Screen('glLoadIdentity', o.window);
 
                 % Draw partner image from texture object made in
-                % beforeTrial ,the texture is updated to the up position
-                % when subject responds with f or g key
-                Screen('DrawTexture',o.window,o.highPayoutMachineTexture,[0 0 3 3], [100 100 200 200], 0, 50);
-                Screen('DrawTexture',o.window,o.lowPayoutMachineTexture, [0 0 3 3], [100 100 200 200], 0, -50);
+                % beforeTrial.
+                % - the texture is updated to the down position
+                %   when subject responds with 1 or 0 key
+                if o.positions(o.trialCounter) == 1
+                    Screen('DrawTexture',o.window,o.highPayoutMachineTexture, [], o.leftMachinePosition);
+                    Screen('DrawTexture',o.window,o.lowPayoutMachineTexture, [], o.rightMachinePosition);
+                else % o.positions(o.trialCounter) == 2
+                    Screen('DrawTexture',o.window,o.highPayoutMachineTexture, [], o.rightMachinePosition);
+                    Screen('DrawTexture',o.window,o.lowPayoutMachineTexture, [], o.leftMachinePosition);
+                end
+                
                 
                 if o.payout == true
                     o.moneyTexture = Screen('MakeTexture',o.window,o.moneyImage);
@@ -174,24 +193,20 @@ classdef simpleslotmachinegame < neurostim.stimulus
                 end
                 
                 % Log Data, only runs once per trial
-%                 if ~o.trialLogged && o.chose  
-%                     % Log choice(machine type), outcome(if got money), 
-%                     trialData =...
-%                         {num2str(o.stimulationConditions(o.trialCounter)),...
-%                                  num2str(o.herdSize),...
-%                                  o.herdFrame,...
-%                                  o.offerType,...
-%                                  o.playerChoice,...
-%                                  num2str(o.playerReactionTime)};
-%                     trialData = trialData.';
-%                     file = fopen(o.fileName,'a');
-%                     fprintf(file,'%s\t%s\t%s\t%s\t%s\t%s\r\n',...
-%                         trialData{:});
-%                     fclose(file);
-%                     % Update data fields
-%                     o.trialLogged = true;
-%                     o.trialCounter = o.trialCounter + 1;
-%                 end                
+                if ~o.trialLogged && o.chose  
+                    % Log choice(machine type), outcome(if got money), 
+                    trialData =...
+                        {num2str(o.trialCounter),num2str(o.blockNumber(o.trialCounter)),...
+                           num2str(o.stimulationConditions(o.trialCounter)),...
+                           o.playerChoice, num2str(o.playerReactionTime)};
+                    trialData = trialData.';
+                    file = fopen(o.fileName,'a');
+                    fprintf(file,'%s\t%s\t%s\t%s\t%s\r\n',...
+                        trialData{:});
+                    fclose(file);
+                    % Update data fields
+                    o.trialLogged = true;
+                end                
             end            
         end     
     end

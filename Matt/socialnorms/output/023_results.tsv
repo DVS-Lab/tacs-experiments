@@ -119,5 +119,3 @@ Condition	GameType	OpponentType	PlayerChoice	PlayerRT	OpponentLoss	PlayerLoss
 1	Dictator	Person	0	199.5158	n/a	n/a
 1	Ultimatum	PC	40	266.1723	0	0
 1	Ultimatum	PC	40	299.5006	2	10
-Condition	GameType	OpponentType	PlayerChoice	PlayerRT	OpponentLoss	PlayerLoss
-Condition	GameType	OpponentType	PlayerChoice	PlayerRT	OpponentLoss	PlayerLoss

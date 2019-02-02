@@ -1,10 +1,10 @@
 function  c = run_simple
-% Ultimatum Game
-% Subjects play the ultimatum game and decides whether to accept or refuse 
-% an offer. Each trial has a stimulation condition, herd type,
+% Learning Task
+% Subjects choose slot machines with fixed payouts to find the high payout
+% slot machine.
 % Controls:
-% - 'f':              Accept
-% - 'g':              Reject
+% - '1':              Left Option
+% - '0':              Right Option
 % Screen Order:
 % - ITI Fixation Screen: 1s
 % - Decision Screen:     3s
@@ -15,7 +15,7 @@ function  c = run_simple
 % Stimulation is off during fixation blocks.
 % 
 % Stimulation Conditions:
-% acTpjBlock = 1, acDlpfcBlock = 2, acSyncBlock = 3, 
+% acRPFCBlock = 1, acLPFCBlock = 2, acSyncBlock = 3, 
 % rnTpjBlock = 4, rnDlpfcBlock = 5, shamBlock = 6.
 % 
 % BK - Feb 2017, MS - modified Sept. 2018
@@ -24,7 +24,7 @@ import neurostim.*;
 %% General Parameters
 subjectID    = '999';
 hostNameOrIP = '10.109.14.164';
-practice     = true;
+practice     = false;
 stimOn       = false;
 amplitude    = 0; % mA
 
@@ -35,10 +35,10 @@ itiDuration      = 1000;
 %% Behavioral Paradigm 
 if practice == true
     NUMBER_BLOCKS = 1; 
-    TRIALS_PER_BLOCK = 5;
+    TRIALS_PER_BLOCK = 50;
 else
-    NUMBER_BLOCKS = 1; 
-    TRIALS_PER_BLOCK = 40;   
+    NUMBER_BLOCKS = 2; 
+    TRIALS_PER_BLOCK = 50;   
 end
 
 %% Stimulation Parameters
@@ -63,7 +63,7 @@ c.paradigm    = 'tacs-herding';
 % Define total trial duration
 c.trialDuration = '@game.decisionDuration + game.itiDuration';
 
-%% Setup the dictator stimulus
+%% Setup the slot machine game stimulus
 ssmg = simpleslotmachinegame(c,'game');
 ssmg.decisionDuration = decisionDuration;
 ssmg.itiDuration      = itiDuration;
@@ -80,21 +80,20 @@ else
     ssmg.highPayoutMachineUpImage = imread('images/slot2_up.jpg');
     ssmg.lowPayoutMachineUpImage = imread('images/slot1_up.jpg');
 end
-moneyImage = imread('images/euro.jpg');
+moneyImage = imread('images/coin.png');
 ssmg.moneyImage = moneyImage;
 %ssmg.moneyTexture = Screen('MakeTexture',o.window,moneyImage);
 
 %% Setup the output file
 % Create and Pass filename to herding ultimatum game object
 outputFileName = strcat(subjectID,'_results.tsv');
-outputFileName = strcat('tacs-social-norms\experiments-master\Matt\herding\output\',outputFileName);
+outputFileName = strcat('tacs-social-norms\experiments-master\Matt\tacs_learning\output\',outputFileName);
 ssmg.fileName   = outputFileName;
 % Create output file, write header
-header = {'StimulationCondition','HerdType','FramingType','OfferType',...
-    'PlayerChoice','PlayerReactionTime'};
+header = {'TrialNumber','BlockNumber','StimulationCondition','Choice','PlayerReactionTime'};
 header = header.';
 outputFile = fopen(outputFileName,'a'); 
-fprintf(outputFile,'%s\t%s\t%s\t%s\t%s\t%s\r\n',header{:});
+fprintf(outputFile,'%s\t%s\t%s\t%s\t%s\r\n',header{:});
 fclose(outputFile);
 
 %% Define stimulation
@@ -120,20 +119,20 @@ tacs_dlpfc_stim_array =...
 % Corresponding Montage Array: [CP6 P4 C4 T8 F4 AF8 Fp2 AF4]
 % Referene: CMS- left cheek bone area DRL- behind left ear area
 % Condition 1 
-acTPJ = design('AC_TPJ');
-acTPJ.conditions(1).starstim.type      = 'tACS';
-acTPJ.conditions(1).starstim.amplitude = tacs_tpj_stim_array(amplitude);
-acTPJ.conditions(1).starstim.phase     = [0 180 180 180 0 0 0 0];
-acTPJ.conditions(1).starstim.sham      = false;
-acTpjBlock = block('acTPJ',acTPJ,'nrRepeats',TRIALS_PER_BLOCK,...
+acRPFC = design('AC_R_PFC');
+acRPFC.conditions(1).starstim.type      = 'tACS';
+acRPFC.conditions(1).starstim.amplitude = tacs_tpj_stim_array(amplitude);
+acRPFC.conditions(1).starstim.phase     = [0 180 180 180 0 0 0 0];
+acRPFC.conditions(1).starstim.sham      = false;
+acRPFCBlock = block('acRPFC',acRPFC,'nrRepeats',TRIALS_PER_BLOCK,...
                    'beforeKeyPress',false,'afterKeyPress',false);
-% Condition 2
-acDLPFC = design('AC_DLPFC');
-acDLPFC.conditions(1).starstim.type      = 'tACS';
-acDLPFC.conditions(1).starstim.amplitude = tacs_dlpfc_stim_array(amplitude);
-acDLPFC.conditions(1).starstim.phase     = [0 0 0 0 180 180 180 0];
-acDLPFC.conditions(1).starstim.sham      = false;
-acDlpfcBlock = block('acDLPFC',acDLPFC,'nrRepeats',TRIALS_PER_BLOCK,...
+% Condition 2 
+acLPFC = design('AC_L_PFC');
+acLPFC.conditions(1).starstim.type      = 'tACS';
+acLPFC.conditions(1).starstim.amplitude = tacs_dlpfc_stim_array(amplitude);
+acLPFC.conditions(1).starstim.phase     = [0 0 0 0 180 180 180 0];
+acLPFC.conditions(1).starstim.sham      = false;
+acLPFCBlock = block('acLPFC',acLPFC,'nrRepeats',TRIALS_PER_BLOCK,...
                      'beforeKeyPress',false,'afterKeyPress',false);
 % Practice 
 sham = design('SHAM');
@@ -142,45 +141,60 @@ shamBlock = block('sham',sham,'nrRepeats',TRIALS_PER_BLOCK,...
     'beforeKeyPress',false,'afterKeyPress',false);
 
 %% Condition Order 
-%  acTpjBlock = 1, acDlpfcBlock = 2, rnTpjBlock = 3, rnDlpfcBlock =4. 
-blockType = block.empty(0,NUMBER_BLOCKS); 
-stimulationConditions = int16.empty(0,NUMBER_BLOCKS*TRIALS_PER_BLOCK); 
-randomizedOrder = randperm(NUMBER_BLOCKS); % Randomized order of stim 
-                                            % condition blocks. 
 % Populate blockOrder array based on randomizedOrder. 
-for blockTypeIndex = 1:NUMBER_BLOCKS
-    switch randomizedOrder(blockTypeIndex)
+blockType = block.empty(0,NUMBER_BLOCKS+(NUMBER_BLOCKS-1));  
+stimConditions = []; 
+
+mySquare = latinSquare(4);
+stimBlockOrder = mySquare(mod(str2num(subjectID),4),:);
+
+stimBlockOrder = [stimBlockOrder(1) 5 stimBlockOrder(2) 5 stimBlockOrder(3)...
+    5 stimBlockOrder(4)];
+% Populate blockOrder array based on stimBlockOrder.
+for blockTypeIndex = 1:NUMBER_BLOCKS+(NUMBER_BLOCKS-1)
+    switch stimBlockOrder(blockTypeIndex)
         case 1
             blockType(blockTypeIndex) = acTpjBlock;
-            leftIndex = ((blockTypeIndex-1)*TRIALS_PER_BLOCK)+1;
-            rightIndex = (blockTypeIndex*TRIALS_PER_BLOCK);
-            % Populate stimulation conditions with each trials stimulation
-            % condition.
-            stimulationConditions(leftIndex:rightIndex) =...
-                randomizedOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK);
+            stimConditions = [stimConditions,...
+                stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK)];
         case 2
             blockType(blockTypeIndex) = acDlpfcBlock;
-            leftIndex = ((blockTypeIndex-1)*TRIALS_PER_BLOCK)+1;
-            rightIndex = (blockTypeIndex*TRIALS_PER_BLOCK);
-            stimulationConditions(leftIndex:rightIndex) =...
-                randomizedOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK);
+            stimConditions = [stimConditions,...
+                stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK)];
+        case 3
+            blockType(blockTypeIndex) = acSyncBlock;
+            stimConditions = [stimConditions,...
+                stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK)];
+        case 4
+            blockType(blockTypeIndex) = shamBlock;
+            stimConditions = [stimConditions,...
+                stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK)];
+        case 5
+            blockType(blockTypeIndex) = breakBlock;
+            stimConditions = [stimConditions,...
+                stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BREAK)];
     end
 end
+
 
 % Determine order of conditions per trial
 leftPositions = ones(20,1);
 rightPositions = 2*ones(20,1);
-positions = [];
+positions = [leftPositions;rightPositions];
+trialPositions = [];
 for i = 1:NUMBER_BLOCKS
     rng('shuffle');
-    positions = [positions,Shuffle([leftPositions;rightPositions])];
+    trialPositions = [positions,Shuffle(positions)];
 end
 
 % Assign each trial's game type (gameOrder) and each trial's stim type    
 % (stimulationConditions) of each trial to our social norms games object  
 % instance ssmg. % herdOfferTypes = [partner type, offer type]                                                          
-ssmg.positions = positions;
+ssmg.positions = trialPositions;
 ssmg.stimulationConditions = stimulationConditions;
+trialBlockNumber = [ones(TRIALS_PER_BLOCK,1);2*ones(TRIALS_PER_BLOCK,1);3*ones(TRIALS_PER_BLOCK,1);4*ones(TRIALS_PER_BLOCK,1);...
+    5*ones(TRIALS_PER_BLOCK,1),6*ones(TRIALS_PER_BLOCK,1),7*ones(TRIALS_PER_BLOCK,1),8*ones(TRIALS_PER_BLOCK,1)];
+ssmg.blockNumber = trialBlockNumber;
 
 %% Run the experiment
 if practice == true

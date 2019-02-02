@@ -36,7 +36,7 @@ itiDuration      = 1000;
 
 %% Behavioral Paradigm 
 uniquePartners      = 3;
-uniqueOffers        = 5;
+uniqueOffers        = 8;
 uniquePartnerOffers = uniquePartners * uniqueOffers;
 numberRepeats       = 4; % 3 trials, 1 rating
 

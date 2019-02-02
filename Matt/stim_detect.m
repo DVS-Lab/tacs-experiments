@@ -2,6 +2,7 @@
 % This script allows the user to manually send stimulation commands to the
 % participant via the matlab command window. The user has a choice of
 % [tACS,tRNS, quit].
+% 
 % Directions: 
 % - Run file
 % - Input tACS
@@ -13,6 +14,9 @@
 % - Repeat process for tRNS if needed
 % - Enter quit to exit stim_detect task and display results
 % - Use results as values to tACS and tRNS amplitudes in tasks
+%
+% MS - Jan 2019
+
 % Parameters:
 ipAddress = '10.109.9.205';
 protocol  = 'rDLPFCrTPJ';
@@ -27,10 +31,12 @@ f = [10 10 10 10 10 10 10 10];     % Frequency
 p = [0 180 180 180 180 180 180 0]; % Phase 
 t = 500;                           % Ramp up/Ramp down
 c = 8;                             % Number of Electrodes
+% Connect to NIC2 (stimulation) computer and start protocol
 [ret, status, socket] = MatNICConnect (ipAddress)
-[ret] = MatNICLoadProtocol (protocol, socket)
-[ret] = MatNICStartProtocol (socket)
+[ret]                 = MatNICLoadProtocol (protocol, socket)
+[ret]                 = MatNICStartProtocol (socket)
 str = ' ';
+% Main Loop
 while (~strcmp(str,"quit"))
     prompt = 'Select an option: [ tACS, tRNS, quit ]';
     str = input(prompt,'s');
@@ -38,7 +44,7 @@ while (~strcmp(str,"quit"))
         case "tACS"
             x = 0; % User input
             while (1)
-                prompt = 'Accepted Amplitude Range: tACS amplitude 0-1999(mA)\nEnter how much you want to increase/decrease: \nEnter -1 to exit tACS stimulation\n';
+                prompt = '\nAccepted Amplitude Range: tACS amplitude 0-1999(mA)\nEnter how much you want to increase/decrease: \nEnter -1 to exit tACS stimulation\n';
                 x = input(prompt);
                 if isempty(x)
                     x = 0;
