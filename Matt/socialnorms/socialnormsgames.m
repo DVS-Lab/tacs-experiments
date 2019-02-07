@@ -71,11 +71,11 @@ classdef socialnormsgames < neurostim.stimulus
             % Find keycode values in the kbName class. 
             % right click on kbName and go to open "kbName"
             if ispc
-                o.addProperty('oneKey', 97);
-                o.addProperty('zeroKey', 96);
+                o.addProperty('oneKey', 49);
+                o.addProperty('zeroKey', 48);
             elseif ismac 
-                o.addProperty('oneKey', 89);
-                o.addProperty('zeroKey', 98);
+                o.addProperty('oneKey', 30);
+                o.addProperty('zeroKey', 39);
             end
         end
         

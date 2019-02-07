@@ -1,24 +1,25 @@
 function  c = run_simple
 % Learning Task
-% Subjects choose slot machines with fixed payouts to find the high payout
-% slot machine.
+% Participants play a simple slot machines game.
+% In each block, a new slot machine combination is chosen.
+% One machine is randomly assigned to be the high payout machine.
+% The other is assigned to be low payout.
 % Controls:
 % - '1':              Left Option
 % - '0':              Right Option
 % Screen Order:
 % - ITI Fixation Screen: 1s
-% - Decision Screen:     3s
+% - Decision Screen:     1.5s
 %
 % We combine this with stimulation of the DLPFC and the TPJ.
-% In each game block, stimulation is conditions 1-6. These are the 
-% same conditions as 5-10 in the regular run.m file.
-% Stimulation is off during fixation blocks.
+% In each game block, stimulation is conditions 1-8.
+% Stimulation is off during break blocks.
 % 
 % Stimulation Conditions:
 % acRPFCBlock = 1, acLPFCBlock = 2, acSyncBlock = 3, 
 % rnTpjBlock = 4, rnDlpfcBlock = 5, shamBlock = 6.
 % 
-% BK - Feb 2017, MS - modified Sept. 2018
+% BK - Feb 2017, MS - modified Feb. 2019
 import neurostim.*;  
 
 %% General Parameters
@@ -29,16 +30,17 @@ stimOn       = false;
 tacs_amplitude    = 0; % mA
 
 %% Trial Duration Parameters
-decisionDuration = 3000; % milliseconds
+decisionDuration = 1500; % milliseconds
 itiDuration      = 1000;
 
 %% Behavioral Paradigm 
 if practice == true
     NUMBER_BLOCKS = 1; 
-    TRIALS_PER_BLOCK = 50;
+    TRIALS_PER_BLOCK = 40;
 else
     NUMBER_BLOCKS = 8; 
-    TRIALS_PER_BLOCK = 50;   
+    TRIALS_PER_BLOCK = 40; 
+    TRIALS_PER_BREAK = 48;
 end
 
 %% Stimulation Parameters
@@ -67,19 +69,48 @@ c.trialDuration = '@game.decisionDuration + game.itiDuration';
 ssmg = simpleslotmachinegame(c,'game');
 ssmg.decisionDuration = decisionDuration;
 ssmg.itiDuration      = itiDuration;
-if rand >.5 % Randmoze which machine is high payout
-    % Blue(slot 1) is high payout, Orange(Slot 2) is low
-    ssmg.highPayoutMachineDownImage = imread('images/slot1_down.jpg');
-    ssmg.lowPayoutMachineDownImage = imread('images/slot2_down.jpg');
-    ssmg.highPayoutMachineUpImage = imread('images/slot1_up.jpg');
-    ssmg.lowPayoutMachineUpImage = imread('images/slot2_up.jpg');
-else
-    % Orange(Slot 2) is high payout, Blue(Slot 1) is low
-    ssmg.highPayoutMachineDownImage = imread('images/slot2_down.jpg');
-    ssmg.lowPayoutMachineDownImage = imread('images/slot1_down.jpg');
-    ssmg.highPayoutMachineUpImage = imread('images/slot2_up.jpg');
-    ssmg.lowPayoutMachineUpImage = imread('images/slot1_up.jpg');
+
+%% Get Slot Machine Images
+path = 'C:\Users\mslip\OneDrive\Documents\MATLAB\tacs-social-norms\experiments-master\Matt\tacs_learning\images';
+imagesRaw = dir(fullfile(path, '*.jpg'));
+images = fullfile(path, {imagesRaw.name});
+
+slotMachineFilePaths = [];
+for i = 1:4:length(images)
+    machineCombination = [];
+    if rand > .5
+        machineCombination = [images(i),images(i+1),images(i+2),images(i+3)];
+    else
+        machineCombination = [images(i+2),images(i+3),images(i),images(i+1)];
+    end
+    slotMachineFilePaths = [slotMachineFilePaths; machineCombination];
 end
+sortedMachineFilePaths = slotMachineFilePaths(randperm(size(slotMachineFilePaths, 1)), :);
+machineFiles = [];
+for i = 1:NUMBER_BLOCKS
+    blockFiles = [];
+    for j = 1:(TRIALS_PER_BLOCK)
+        blockFiles = [blockFiles;sortedMachineFilePaths(i,:)];
+    end
+    if i < NUMBER_BLOCKS
+        for j = 1:(TRIALS_PER_BREAK)
+            blockFiles = [blockFiles;sortedMachineFilePaths(i,:)];
+        end
+    end
+    machineFiles = [machineFiles;blockFiles];
+end
+ssmg.imageFiles = machineFiles;
+% if rand >.5 % Randmoze which machine is high payout
+%     ssmg.highPayoutMachineDownImage = imread(ssmg.imageFiles{ssmg.machineCounter,1});
+%     ssmg.highPayoutMachineUpImage = imread(ssmg.imageFiles{ssmg.machineCounter,2});
+%     ssmg.lowPayoutMachineDownImage = imread(ssmg.imageFiles{ssmg.machineCounter,3});
+%     ssmg.lowPayoutMachineUpImage = imread(ssmg.imageFiles{ssmg.machineCounter,4});
+% else
+%     ssmg.highPayoutMachineDownImage = imread(ssmg.imageFiles{ssmg.machineCounter,3});
+%     ssmg.highPayoutMachineUpImage = imread(ssmg.imageFiles{ssmg.machineCounter,4});
+%     ssmg.lowPayoutMachineDownImage = imread(ssmg.imageFiles{ssmg.machineCounter,1});
+%     ssmg.lowPayoutMachineUpImage = imread(ssmg.imageFiles{ssmg.machineCounter,2});
+% end
 moneyImage = imread('images/coin.png');
 ssmg.moneyImage = moneyImage;
 %ssmg.moneyTexture = Screen('MakeTexture',o.window,moneyImage);
@@ -90,10 +121,10 @@ outputFileName = strcat(subjectID,'_results.tsv');
 outputFileName = strcat('tacs-social-norms\experiments-master\Matt\tacs_learning\output\',outputFileName);
 ssmg.fileName   = outputFileName;
 % Create output file, write header
-header = {'TrialNumber','BlockNumber','StimulationCondition','Choice','PlayerReactionTime'};
+header = {'TrialNumber','BlockNumber','StimulationCondition','Choice','Payout','PlayerReactionTime'};
 header = header.';
 outputFile = fopen(outputFileName,'a'); 
-fprintf(outputFile,'%s\t%s\t%s\t%s\t%s\r\n',header{:});
+fprintf(outputFile,'%s\t%s\t%s\t%s\t%s\t%s\r\n',header{:});
 fclose(outputFile);
 
 %% Define stimulation
@@ -153,6 +184,11 @@ sham.conditions(1).starstim.phase     = [0 180 180 180 180 180 180 0];
 sham.conditions(1).starstim.sham      = true;
 shamBlock = block('sham',sham,'nrRepeats',TRIALS_PER_BLOCK,'beforeKeyPress',false,'afterKeyPress',false);
 
+% Condition 9
+break2min = design('BREAK2MIN');
+break2min.conditions(1).starstim.enabled = false;
+breakBlock = block('break2min',break2min,'nrRepeats',TRIALS_PER_BREAK,'beforeKeyPress',false,'afterKeyPress',false);
+
 %% Condition Order 
 % Populate blockOrder array based on randomizedOrder. 
 blockType = block.empty(0,NUMBER_BLOCKS);  
@@ -161,10 +197,11 @@ stimConditions = [];
 mySquare = latinSquare(8);
 stimBlockOrder = mySquare(mod(str2num(subjectID),8),:);
 
-%stimBlockOrder = [stimBlockOrder(1) 5 stimBlockOrder(2) 5 stimBlockOrder(3)...
-%    5 stimBlockOrder(4)];
+stimBlockOrder = [stimBlockOrder(1) 9 stimBlockOrder(2) 9 stimBlockOrder(3)...
+   9 stimBlockOrder(4) 9 stimBlockOrder(5) 9 stimBlockOrder(6)...
+   9 stimBlockOrder(7) 9 stimBlockOrder(8)];
 % Populate blockOrder array based on stimBlockOrder.
-for blockTypeIndex = 1:NUMBER_BLOCKS
+for blockTypeIndex = 1:NUMBER_BLOCKS+(NUMBER_BLOCKS-1)
     switch stimBlockOrder(blockTypeIndex)
         case 1
             blockType(blockTypeIndex) = acTpjBlock;
@@ -198,6 +235,10 @@ for blockTypeIndex = 1:NUMBER_BLOCKS
             blockType(blockTypeIndex) = shamBlock;
             stimConditions = [stimConditions,...
                 stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK)];
+        case 9
+            blockType(blockTypeIndex) = breakBlock;
+            stimConditions = [stimConditions,...
+                stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BREAK)];
     end
 end
 
@@ -209,7 +250,11 @@ positions = [leftPositions;rightPositions];
 trialPositions = [];
 for i = 1:NUMBER_BLOCKS
     rng('shuffle');
-    trialPositions = [trialPositions,Shuffle(positions)];
+    trialPositions = [trialPositions;Shuffle(positions)];
+    if i < NUMBER_BLOCKS
+        trialPositions = [trialPositions;...
+            9 * ones(TRIALS_PER_BREAK,1)];
+    end
 end
 
 % Assign each trial's game type (gameOrder) and each trial's stim type    
@@ -217,15 +262,18 @@ end
 % instance ssmg. % herdOfferTypes = [partner type, offer type]                                                          
 ssmg.positions = trialPositions;
 ssmg.stimulationConditions = stimConditions;
-trialBlockNumber = [ones(TRIALS_PER_BLOCK,1);2*ones(TRIALS_PER_BLOCK,1);3*ones(TRIALS_PER_BLOCK,1);4*ones(TRIALS_PER_BLOCK,1);...
-    5*ones(TRIALS_PER_BLOCK,1);6*ones(TRIALS_PER_BLOCK,1);7*ones(TRIALS_PER_BLOCK,1);8*ones(TRIALS_PER_BLOCK,1)];
+trialBlockNumber = [ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);...
+    2*ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);3*ones(TRIALS_PER_BLOCK,1);...
+    9*ones(TRIALS_PER_BREAK,1);4*ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);...
+    5*ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);6*ones(TRIALS_PER_BLOCK,1);...
+    9*ones(TRIALS_PER_BREAK,1);7*ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);8*ones(TRIALS_PER_BLOCK,1)];
 ssmg.blockNumber = trialBlockNumber;
 
 %% Run the experiment
 if practice == true
     c.run(shamBlock,'RANDOMIZATION','ORDERED','blockOrder', 1);
 else
-    c.run(acTpjBlock,acDlpfcBlock,acSyncBlock,shamBlock,acTpjBlock,acDlpfcBlock,acSyncBlock,shamBlock,...
+    c.run(acTpjBlock,acDlpfcBlock,acSyncBlock,shamBlock,acTpjBlock,acDlpfcBlock,acSyncBlock,shamBlock,breakBlock,...
         'RANDOMIZATION','ORDERED','blockOrder',stimBlockOrder);
 end
 

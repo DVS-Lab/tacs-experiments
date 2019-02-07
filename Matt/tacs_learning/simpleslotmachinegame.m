@@ -33,16 +33,17 @@ classdef simpleslotmachinegame < neurostim.stimulus
             % Define properties that will be logged.
             o.addProperty('file', NaN);
             o.addProperty('fileName', NaN);
+            o.addProperty('imageFiles', NaN);
             o.addProperty('leftMachinePosition', [609 405 879 675]);
             o.addProperty('rightMachinePosition', [1041 405 1311 675]);
             o.addProperty('highPayoutMachineTexture', NaN);
             o.addProperty('lowPayoutMachineTexture', NaN);
+            o.addProperty('highPayoutMachineImageTexture', NaN);
+            o.addProperty('lowPayoutMachineImageTexture', NaN);
             o.addProperty('highPayoutMachineDownImage', NaN);
             o.addProperty('lowPayoutMachineDownImage', NaN); 
             o.addProperty('highPayoutMachineUpImage', NaN);
             o.addProperty('lowPayoutMachineUpImage', NaN);   
-            o.addProperty('highPayoutMachineImageTexture', NaN);
-            o.addProperty('lowPayoutMachineImageTexture', NaN);
             o.addProperty('moneyImage', NaN);
             o.addProperty('moneyTexture', NaN);
             o.addProperty('playerChoice', NaN);
@@ -59,8 +60,8 @@ classdef simpleslotmachinegame < neurostim.stimulus
                 o.addProperty('oneKey', 49);
                 o.addProperty('zeroKey', 48);
             elseif ismac 
-                o.addProperty('oneKey', 49);
-                o.addProperty('zeroKey', 48);
+                o.addProperty('oneKey', 30);
+                o.addProperty('zeroKey', 39);
             end
         end
         
@@ -76,18 +77,24 @@ classdef simpleslotmachinegame < neurostim.stimulus
             o.playerChoice = NaN;
             o.playerReactionTime = NaN;
             
+            % Update machine images
+            o.highPayoutMachineDownImage = imread(o.imageFiles{o.trialCounter,1});
+            o.highPayoutMachineUpImage = imread(o.imageFiles{o.trialCounter,2});
+            o.lowPayoutMachineDownImage = imread(o.imageFiles{o.trialCounter,3});
+            o.lowPayoutMachineUpImage = imread(o.imageFiles{o.trialCounter,4});
+            
             % Machine's start at default 'down' position
             o.highPayoutMachineTexture = Screen('MakeTexture',o.window,...
                 o.highPayoutMachineUpImage);
             o.lowPayoutMachineTexture = Screen('MakeTexture',o.window,...
                 o.lowPayoutMachineUpImage);
-            
         end
         
         %% Executes every frame
         function beforeFrame(o,~,~)
             % Mark trial time
             now  = o.cic.trialTime;
+            %% Collect User Response
             % Check for response if decision has yet to be made and the
             % decision duration has not elapsed.
             [~,~,keyCode] = KbCheck;  
@@ -140,74 +147,94 @@ classdef simpleslotmachinegame < neurostim.stimulus
                 end
             end
             
+            %% No Response Check
             % Still no guess since preround screen, list as n/a
             if ~o.chose && (now > 0.99*(o.itiDuration + o.decisionDuration))
                 o.playerChoice = 'n/a';
+                gotPayout = 0;
                 % Log choice(machine type), outcome(if got money), 
                 trialData =...
                     {num2str(o.trialCounter),num2str(o.blockNumber(o.trialCounter)),...
                        num2str(o.stimulationConditions(o.trialCounter)),...
-                       o.playerChoice, num2str(o.playerReactionTime)};
+                       o.playerChoice, num2str(gotPayout), num2str(o.playerReactionTime)};
                 trialData = trialData.';
                 file = fopen(o.fileName,'a');
-                fprintf(file,'%s\t%s\t%s\t%s\t%s\r\n',...
+                fprintf(file,'%s\t%s\t%s\t%s\t%s\t%s\r\n',...
                     trialData{:});
                 fclose(file);
                 % Update data fields
                 o.trialLogged = true;
             end
             
-            % Diplay ITI Screen. t = [0s,1s)
-            if now < o.itiDuration
+            %% Break Screen
+            if o.blockNumber(o.trialCounter) == 9
+                % Break Screen. Displayed for 1:59 mins.
                 Screen('TextFont',o.window, 'Courier New');
                 Screen('TextSize',o.window, o.fontSize);
                 Screen('TextStyle', o.window, 1+2);
                 Screen('glLoadIdentity', o.window);
-                
-                DrawFormattedText(o.window, '+', 'center', 'center',...
-                    o.defaultTextColor);
-            % UltimatumDecision Screen. t = [1s, 4s)
-            elseif now < o.itiDuration + o.decisionDuration...
-                % Set up screen parameters
-                Screen('TextFont',o.window, 'Courier New');
-                Screen('TextSize',o.window, o.fontSize);
-                Screen('TextStyle', o.window, 1+2);
-                Screen('glLoadIdentity', o.window);
+                % Display break screen
+                DrawFormattedText(o.window, '2 Minute Break', 'center', 350,...
+                     o.defaultTextColor);
+            else 
+            %% Game
+                % Diplay ITI Screen. t = [0s,1s)
+                if now < o.itiDuration
+                    Screen('TextFont',o.window, 'Courier New');
+                    Screen('TextSize',o.window, o.fontSize);
+                    Screen('TextStyle', o.window, 1+2);
+                    Screen('glLoadIdentity', o.window);
 
-                % Draw partner image from texture object made in
-                % beforeTrial.
-                % - the texture is updated to the down position
-                %   when subject responds with 1 or 0 key
-                if o.positions(o.trialCounter) == 1
-                    Screen('DrawTexture',o.window,o.highPayoutMachineTexture, [], o.leftMachinePosition);
-                    Screen('DrawTexture',o.window,o.lowPayoutMachineTexture, [], o.rightMachinePosition);
-                else % o.positions(o.trialCounter) == 2
-                    Screen('DrawTexture',o.window,o.highPayoutMachineTexture, [], o.rightMachinePosition);
-                    Screen('DrawTexture',o.window,o.lowPayoutMachineTexture, [], o.leftMachinePosition);
-                end
-                
-                
-                if o.payout == true
-                    o.moneyTexture = Screen('MakeTexture',o.window,o.moneyImage);
-                    Screen('DrawTexture',o.window,o.moneyTexture);
-                end
-                
-                % Log Data, only runs once per trial
-                if ~o.trialLogged && o.chose  
-                    % Log choice(machine type), outcome(if got money), 
-                    trialData =...
-                        {num2str(o.trialCounter),num2str(o.blockNumber(o.trialCounter)),...
-                           num2str(o.stimulationConditions(o.trialCounter)),...
-                           o.playerChoice, num2str(o.playerReactionTime)};
-                    trialData = trialData.';
-                    file = fopen(o.fileName,'a');
-                    fprintf(file,'%s\t%s\t%s\t%s\t%s\r\n',...
-                        trialData{:});
-                    fclose(file);
-                    % Update data fields
-                    o.trialLogged = true;
-                end                
-            end            
+                    DrawFormattedText(o.window, '+', 'center', 'center',...
+                        o.defaultTextColor);
+                % UltimatumDecision Screen. t = [1s, 4s)
+                elseif now < o.itiDuration + o.decisionDuration...
+                    % Set up screen parameters
+                    Screen('TextFont',o.window, 'Courier New');
+                    Screen('TextSize',o.window, o.fontSize);
+                    Screen('TextStyle', o.window, 1+2);
+                    Screen('glLoadIdentity', o.window);
+
+                    % Draw partner image from texture object made in
+                    % beforeTrial.
+                    % - the texture is updated to the down position
+                    %   when subject responds with 1 or 0 key
+                    if o.positions(o.trialCounter) == 1
+                        Screen('DrawTexture',o.window,o.highPayoutMachineTexture, [], o.leftMachinePosition);
+                        Screen('DrawTexture',o.window,o.lowPayoutMachineTexture, [], o.rightMachinePosition);
+                    else % o.positions(o.trialCounter) == 2
+                        Screen('DrawTexture',o.window,o.highPayoutMachineTexture, [], o.rightMachinePosition);
+                        Screen('DrawTexture',o.window,o.lowPayoutMachineTexture, [], o.leftMachinePosition);
+                    end
+
+
+                    if o.payout == true
+                        o.moneyTexture = Screen('MakeTexture',o.window,o.moneyImage);
+                        Screen('DrawTexture',o.window,o.moneyTexture);
+                    end
+
+                    % Log Data, only runs once per trial
+                    if ~o.trialLogged && o.chose  
+                        if o.payout == true
+                            gotPayout = 1;
+                        else
+                            gotPayout = 0;
+                        end
+                        % Log choice(machine type), outcome(if got money), 
+                        trialData =...
+                            {num2str(o.trialCounter),num2str(o.blockNumber(o.trialCounter)),...
+                               num2str(o.stimulationConditions(o.trialCounter)),...
+                               o.playerChoice, num2str(gotPayout), num2str(o.playerReactionTime)};
+                        trialData = trialData.';
+                        file = fopen(o.fileName,'a');
+                        fprintf(file,'%s\t%s\t%s\t%s\t%s\t%s\r\n',...
+                            trialData{:});
+                        fclose(file);
+                        % Update data fields
+                        o.trialLogged = true;
+                    end                
+                end  
+            end
         end     
     end
 end
