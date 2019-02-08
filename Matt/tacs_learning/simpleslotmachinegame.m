@@ -119,7 +119,7 @@ classdef simpleslotmachinegame < neurostim.stimulus
                     else
                         o.lowPayoutMachineTexture = Screen('MakeTexture',o.window,...
                             o.lowPayoutMachineDownImage);
-                        if rand <= .25
+                        if rand <= .5
                             o.payout = true;
                         end
                         o.playerChoice = 'Low';
@@ -132,7 +132,7 @@ classdef simpleslotmachinegame < neurostim.stimulus
                     if o.positions(o.trialCounter) == 1
                         o.lowPayoutMachineTexture = Screen('MakeTexture',o.window,...
                             o.lowPayoutMachineDownImage);
-                        if rand <= .25
+                        if rand <= .5
                             o.payout = true;
                         end
                         o.playerChoice = 'Low';

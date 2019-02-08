@@ -1,4 +1,4 @@
-function  c = run_simple
+function  c = run_split
 % Learning Task
 % Participants play a simple slot machines game.
 % In each block, a new slot machine combination is chosen.
@@ -11,19 +11,19 @@ function  c = run_simple
 % - ITI Fixation Screen: 1s
 % - Decision Screen:     1.5s
 %
-% We combine this with stimulation of the DLPFC and the TPJ.
+% We combine this with stimulation of the VLPFC and the TPJ.
 % In each game block, stimulation is conditions 1-8.
 % Stimulation is off during break blocks.
 % 
 % Stimulation Conditions:
-% acRPFCBlock = 1, acLPFCBlock = 2, acSyncBlock = 3, 
-% rnTpjBlock = 4, rnDlpfcBlock = 5, shamBlock = 6.
+% acTpjBlock = 1&5, acVLPFCBlock = 2&6, acSyncBlock = 3&7, shamBlock = 4&8.
 % 
 % BK - Feb 2017, MS - modified Feb. 2019
 import neurostim.*;  
 
 %% General Parameters
-subjectID    = '001';
+subjectID    = '999';
+part         = 1;
 hostNameOrIP = '10.109.14.164';
 practice     = false;
 stimOn       = false;
@@ -36,15 +36,15 @@ itiDuration      = 1000;
 %% Behavioral Paradigm 
 if practice == true
     NUMBER_BLOCKS = 1; 
-    TRIALS_PER_BLOCK = 6;
+    TRIALS_PER_BLOCK = 40;
 else
-    NUMBER_BLOCKS = 8; 
-    TRIALS_PER_BLOCK = 6; 
-    TRIALS_PER_BREAK = 30;
+    NUMBER_BLOCKS = 4; 
+    TRIALS_PER_BLOCK = 40; 
 end
+TRIALS_PER_BREAK = 48;
 
 %% Stimulation Parameters
-protocolName = 'rDLPFCrTPJ';
+protocolName = 'rVLPFCrTPJ';
 stimFileFolder = 'c:/temp/'; % Folder on the starstim machine where data
                              % are saved (must exist)
 stimFrequency = 10; % Hz
@@ -71,7 +71,7 @@ ssmg.decisionDuration = decisionDuration;
 ssmg.itiDuration      = itiDuration;
 
 %% Get Slot Machine Images
-path = 'C:\Users\mslip\OneDrive\Documents\MATLAB\tacs-social-norms\experiments-master\Matt\tacs_learning\images';
+path = 'C:\Users\tuf91673\Documents\MATLAB\tacs-social-norms\experiments-master\Matt\tacs_learning\images';
 imagesRaw = dir(fullfile(path, '*.jpg'));
 images = fullfile(path, {imagesRaw.name});
 
@@ -85,17 +85,13 @@ for i = 1:4:length(images)
     end
     slotMachineFilePaths = [slotMachineFilePaths; machineCombination];
 end
-sortedMachineFilePaths = slotMachineFilePaths(randperm(size(slotMachineFilePaths, 1)), :);
+sortedMachineFilePaths =...
+    slotMachineFilePaths(randperm(size(slotMachineFilePaths, 1)), :);
 machineFiles = [];
 for i = 1:NUMBER_BLOCKS
     blockFiles = [];
     for j = 1:(TRIALS_PER_BLOCK)
         blockFiles = [blockFiles;sortedMachineFilePaths(i,:)];
-    end
-    if i < NUMBER_BLOCKS
-        for j = 1:(TRIALS_PER_BREAK)
-            blockFiles = [blockFiles;sortedMachineFilePaths(i,:)];
-        end
     end
     machineFiles = [machineFiles;blockFiles];
 end
@@ -131,12 +127,12 @@ stm.path     = stimFileFolder;
 
 % Define amplitude array functions
 tacs_tpj_stim_array = @(x) [x floor(x*1/3) floor(x*1/3) ceil(x*1/3) 0 0 0 0];
-tacs_dlpfc_stim_array = @(x) [0 0 0 0 ceil(x*1/3) floor(x*1/3) floor(x*1/3) x];
-tacs_tpj_dlpfc_stim_array = @(x) [x floor(x*1/3) floor(x*1/3) ceil(x*1/3) ceil(x*1/3) floor(x*1/3) floor(x*1/3) x];
+tacs_VLPFC_stim_array = @(x) [0 0 0 0 ceil(x*1/3) floor(x*1/3) floor(x*1/3) x];
+tacs_tpj_VLPFC_stim_array = @(x) [x floor(x*1/3) floor(x*1/3) ceil(x*1/3) ceil(x*1/3) floor(x*1/3) floor(x*1/3) x];
 
 %% Define All Block Types
 % Corresponding Montage Array: [CP6 P4 C4 T8 F4 AF8 Fp2 AF4]
-% Referene: CMS- left cheek bone area DRL- behind left ear area
+% Referene: CMS- behind left ear area DRL- left cheek bone area
 % Condition 1 & 5
 acTPJ = design('AC_TPJ');
 acTPJ.conditions(1).starstim.enabled = true;
@@ -147,19 +143,19 @@ acTPJ.conditions(1).starstim.sham      = false;
 acTpjBlock = block('acTPJ',acTPJ,'nrRepeats',TRIALS_PER_BLOCK,'beforeKeyPress',false,'afterKeyPress',false);
 
 % Condition 2 & 6
-acDLPFC = design('AC_DLPFC');
-acDLPFC.conditions(1).starstim.enabled = true;
-acDLPFC.conditions(1).starstim.type      = 'tACS';
-acDLPFC.conditions(1).starstim.amplitude = tacs_dlpfc_stim_array(tacs_amplitude);
-acDLPFC.conditions(1).starstim.phase     = [0 0 0 0 180 180 180 0];
-acDLPFC.conditions(1).starstim.sham      = false;
-acDlpfcBlock = block('acDLPFC',acDLPFC,'nrRepeats',TRIALS_PER_BLOCK,'beforeKeyPress',false,'afterKeyPress',false);
+acVLPFC = design('AC_VLPFC');
+acVLPFC.conditions(1).starstim.enabled = true;
+acVLPFC.conditions(1).starstim.type      = 'tACS';
+acVLPFC.conditions(1).starstim.amplitude = tacs_VLPFC_stim_array(tacs_amplitude);
+acVLPFC.conditions(1).starstim.phase     = [0 0 0 0 180 180 180 0];
+acVLPFC.conditions(1).starstim.sham      = false;
+acVLPFCBlock = block('acVLPFC',acVLPFC,'nrRepeats',TRIALS_PER_BLOCK,'beforeKeyPress',false,'afterKeyPress',false);
 
 % Condition 3 & 7
-acSYNC = design('AC_DLPFC_TPJ_SYNC');
+acSYNC = design('AC_VLPFC_TPJ_SYNC');
 acSYNC.conditions(1).starstim.enabled = true;
 acSYNC.conditions(1).starstim.type      = 'tACS';
-acSYNC.conditions(1).starstim.amplitude = tacs_tpj_dlpfc_stim_array(tacs_amplitude);
+acSYNC.conditions(1).starstim.amplitude = tacs_tpj_VLPFC_stim_array(tacs_amplitude);
 acSYNC.conditions(1).starstim.phase     = [0 180 180 180 180 180 180 0];
 acSYNC.conditions(1).starstim.sham      = false;
 acSyncBlock = block('acSYNC',acSYNC,'nrRepeats',TRIALS_PER_BLOCK,'beforeKeyPress',false,'afterKeyPress',false);
@@ -168,7 +164,7 @@ acSyncBlock = block('acSYNC',acSYNC,'nrRepeats',TRIALS_PER_BLOCK,'beforeKeyPress
 sham = design('SHAM');
 sham.conditions(1).starstim.enabled = true;
 sham.conditions(1).starstim.type      = 'tACS';
-sham.conditions(1).starstim.amplitude = tacs_tpj_dlpfc_stim_array(tacs_amplitude);
+sham.conditions(1).starstim.amplitude = tacs_tpj_VLPFC_stim_array(tacs_amplitude);
 sham.conditions(1).starstim.phase     = [0 180 180 180 180 180 180 0];
 sham.conditions(1).starstim.sham      = true;
 shamBlock = block('sham',sham,'nrRepeats',TRIALS_PER_BLOCK,'beforeKeyPress',false,'afterKeyPress',false);
@@ -185,19 +181,23 @@ stimConditions = [];
 
 mySquare = latinSquare(8);
 stimBlockOrder = mySquare(mod(str2num(subjectID),8),:);
+if part == 1
+    stimBlockOrder = [stimBlockOrder(1) stimBlockOrder(2) stimBlockOrder(3)...
+        stimBlockOrder(4)];
+else
+    stimBlockOrder = [stimBlockOrder(5) stimBlockOrder(6)...
+        stimBlockOrder(7) stimBlockOrder(8)];
+end
 
-stimBlockOrder = [stimBlockOrder(1) 9 stimBlockOrder(2) 9 stimBlockOrder(3)...
-   9 stimBlockOrder(4) 9 stimBlockOrder(5) 9 stimBlockOrder(6)...
-   9 stimBlockOrder(7) 9 stimBlockOrder(8)];
 % Populate blockOrder array based on stimBlockOrder.
-for blockTypeIndex = 1:NUMBER_BLOCKS+(NUMBER_BLOCKS-1)
+for blockTypeIndex = 1:NUMBER_BLOCKS
     switch stimBlockOrder(blockTypeIndex)
         case 1
             blockType(blockTypeIndex) = acTpjBlock;
             stimConditions = [stimConditions,...
                 stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK)];
         case 2
-            blockType(blockTypeIndex) = acDlpfcBlock;
+            blockType(blockTypeIndex) = acVLPFCBlock;
             stimConditions = [stimConditions,...
                 stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK)];
         case 3
@@ -213,7 +213,7 @@ for blockTypeIndex = 1:NUMBER_BLOCKS+(NUMBER_BLOCKS-1)
             stimConditions = [stimConditions,...
                 stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK)];
         case 6
-            blockType(blockTypeIndex) = acDlpfcBlock;
+            blockType(blockTypeIndex) = acVLPFCBlock;
             stimConditions = [stimConditions,...
                 stimBlockOrder(blockTypeIndex) * ones(1,TRIALS_PER_BLOCK)];
         case 7
@@ -231,7 +231,6 @@ for blockTypeIndex = 1:NUMBER_BLOCKS+(NUMBER_BLOCKS-1)
     end
 end
 
-
 % Determine order of conditions per trial
 leftPositions = ones(TRIALS_PER_BLOCK/2,1);
 rightPositions = 2*ones(TRIALS_PER_BLOCK/2,1);
@@ -240,10 +239,6 @@ trialPositions = [];
 for i = 1:NUMBER_BLOCKS
     rng('shuffle');
     trialPositions = [trialPositions;Shuffle(positions)];
-    if i < NUMBER_BLOCKS
-        trialPositions = [trialPositions;...
-            9 * ones(TRIALS_PER_BREAK,1)];
-    end
 end
 
 % Assign each trial's game type (gameOrder) and each trial's stim type    
@@ -251,18 +246,23 @@ end
 % instance ssmg. % herdOfferTypes = [partner type, offer type]                                                          
 ssmg.positions = trialPositions;
 ssmg.stimulationConditions = stimConditions;
-trialBlockNumber = [ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);...
-    2*ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);3*ones(TRIALS_PER_BLOCK,1);...
-    9*ones(TRIALS_PER_BREAK,1);4*ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);...
-    5*ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);6*ones(TRIALS_PER_BLOCK,1);...
-    9*ones(TRIALS_PER_BREAK,1);7*ones(TRIALS_PER_BLOCK,1);9*ones(TRIALS_PER_BREAK,1);8*ones(TRIALS_PER_BLOCK,1)];
+
+if part == 1
+    trialBlockNumber = [ones(TRIALS_PER_BLOCK,1);2*ones(TRIALS_PER_BLOCK,1);...
+                    3*ones(TRIALS_PER_BLOCK,1);4*ones(TRIALS_PER_BLOCK,1)];
+else
+    trialBlockNumber = [5*ones(TRIALS_PER_BLOCK,1);6*ones(TRIALS_PER_BLOCK,1);...
+                    7*ones(TRIALS_PER_BLOCK,1);8*ones(TRIALS_PER_BLOCK,1)];
+end
+
 ssmg.blockNumber = trialBlockNumber;
 
 %% Run the experiment
 if practice == true
     c.run(shamBlock,'RANDOMIZATION','ORDERED','blockOrder', 1);
 else
-    c.run(acTpjBlock,acDlpfcBlock,acSyncBlock,shamBlock,acTpjBlock,acDlpfcBlock,acSyncBlock,shamBlock,breakBlock,...
+    c.run(acTpjBlock,acVLPFCBlock,acSyncBlock,shamBlock,acTpjBlock,...
+        acVLPFCBlock,acSyncBlock,shamBlock,breakBlock,...
         'RANDOMIZATION','ORDERED','blockOrder',stimBlockOrder);
 end
 

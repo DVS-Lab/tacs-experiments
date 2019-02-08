@@ -23,7 +23,7 @@ function  c = run_simple
 import neurostim.*;  
 
 %% General Parameters
-subjectID    = '999';
+subjectID    = '001';
 hostNameOrIP = '10.109.14.164';
 practice     = false;
 stimOn       = false;
@@ -36,11 +36,11 @@ itiDuration      = 1000;
 %% Behavioral Paradigm 
 if practice == true
     NUMBER_BLOCKS = 1; 
-    TRIALS_PER_BLOCK = 40;
+    TRIALS_PER_BLOCK = 6;
 else
     NUMBER_BLOCKS = 8; 
-    TRIALS_PER_BLOCK = 40; 
-    TRIALS_PER_BREAK = 48;
+    TRIALS_PER_BLOCK = 6; 
+    TRIALS_PER_BREAK = 30;
 end
 
 %% Stimulation Parameters
@@ -100,17 +100,6 @@ for i = 1:NUMBER_BLOCKS
     machineFiles = [machineFiles;blockFiles];
 end
 ssmg.imageFiles = machineFiles;
-% if rand >.5 % Randmoze which machine is high payout
-%     ssmg.highPayoutMachineDownImage = imread(ssmg.imageFiles{ssmg.machineCounter,1});
-%     ssmg.highPayoutMachineUpImage = imread(ssmg.imageFiles{ssmg.machineCounter,2});
-%     ssmg.lowPayoutMachineDownImage = imread(ssmg.imageFiles{ssmg.machineCounter,3});
-%     ssmg.lowPayoutMachineUpImage = imread(ssmg.imageFiles{ssmg.machineCounter,4});
-% else
-%     ssmg.highPayoutMachineDownImage = imread(ssmg.imageFiles{ssmg.machineCounter,3});
-%     ssmg.highPayoutMachineUpImage = imread(ssmg.imageFiles{ssmg.machineCounter,4});
-%     ssmg.lowPayoutMachineDownImage = imread(ssmg.imageFiles{ssmg.machineCounter,1});
-%     ssmg.lowPayoutMachineUpImage = imread(ssmg.imageFiles{ssmg.machineCounter,2});
-% end
 moneyImage = imread('images/coin.png');
 ssmg.moneyImage = moneyImage;
 %ssmg.moneyTexture = Screen('MakeTexture',o.window,moneyImage);

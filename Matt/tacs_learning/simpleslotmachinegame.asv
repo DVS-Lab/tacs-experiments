@@ -76,18 +76,18 @@ classdef simpleslotmachinegame < neurostim.stimulus
             o.payout = false;
             o.playerChoice = NaN;
             o.playerReactionTime = NaN;
- 
             
+            % Update machine images
             o.highPayoutMachineDownImage = imread(o.imageFiles{o.trialCounter,1});
             o.highPayoutMachineUpImage = imread(o.imageFiles{o.trialCounter,2});
             o.lowPayoutMachineDownImage = imread(o.imageFiles{o.trialCounter,3});
             o.lowPayoutMachineUpImage = imread(o.imageFiles{o.trialCounter,4});
+            
             % Machine's start at default 'down' position
             o.highPayoutMachineTexture = Screen('MakeTexture',o.window,...
                 o.highPayoutMachineUpImage);
             o.lowPayoutMachineTexture = Screen('MakeTexture',o.window,...
                 o.lowPayoutMachineUpImage);
-            
         end
         
         %% Executes every frame
@@ -151,14 +151,15 @@ classdef simpleslotmachinegame < neurostim.stimulus
             % Still no guess since preround screen, list as n/a
             if ~o.chose && (now > 0.99*(o.itiDuration + o.decisionDuration))
                 o.playerChoice = 'n/a';
+                gotPayout = 0;
                 % Log choice(machine type), outcome(if got money), 
                 trialData =...
                     {num2str(o.trialCounter),num2str(o.blockNumber(o.trialCounter)),...
                        num2str(o.stimulationConditions(o.trialCounter)),...
-                       o.playerChoice, num2str(o.playerReactionTime)};
+                       o.playerChoice, num2str(gotPayout), num2str(o.playerReactionTime)};
                 trialData = trialData.';
                 file = fopen(o.fileName,'a');
-                fprintf(file,'%s\t%s\t%s\t%s\t%s\r\n',...
+                fprintf(file,'%s\t%s\t%s\t%s\t%s\t%s\r\n',...
                     trialData{:});
                 fclose(file);
                 % Update data fields
@@ -175,6 +176,7 @@ classdef simpleslotmachinegame < neurostim.stimulus
                 % Display break screen
                 DrawFormattedText(o.window, '2 Minute Break', 'center', 350,...
                      o.defaultTextColor);
+                KbWait(60)
             else 
             %% Game
                 % Diplay ITI Screen. t = [0s,1s)
@@ -214,14 +216,19 @@ classdef simpleslotmachinegame < neurostim.stimulus
 
                     % Log Data, only runs once per trial
                     if ~o.trialLogged && o.chose  
+                        if o.payout == true
+                            gotPayout = 1;
+                        else
+                            gotPayout = 0;
+                        end
                         % Log choice(machine type), outcome(if got money), 
                         trialData =...
                             {num2str(o.trialCounter),num2str(o.blockNumber(o.trialCounter)),...
                                num2str(o.stimulationConditions(o.trialCounter)),...
-                               o.playerChoice, num2str(o.playerReactionTime)};
+                               o.playerChoice, num2str(gotPayout), num2str(o.playerReactionTime)};
                         trialData = trialData.';
                         file = fopen(o.fileName,'a');
-                        fprintf(file,'%s\t%s\t%s\t%s\t%s\r\n',...
+                        fprintf(file,'%s\t%s\t%s\t%s\t%s\t%s\r\n',...
                             trialData{:});
                         fclose(file);
                         % Update data fields
