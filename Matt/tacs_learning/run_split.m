@@ -22,8 +22,8 @@ function  c = run_split
 import neurostim.*;  
 
 %% General Parameters
-subjectID    = '999';
-part         = 1;
+subjectID    = '001';
+part         = 2;
 hostNameOrIP = '10.109.14.164';
 practice     = false;
 stimOn       = false;
@@ -109,7 +109,9 @@ ssmg.fileName   = outputFileName;
 header = {'TrialNumber','BlockNumber','StimulationCondition','Choice','Payout','PlayerReactionTime'};
 header = header.';
 outputFile = fopen(outputFileName,'a'); 
-fprintf(outputFile,'%s\t%s\t%s\t%s\t%s\t%s\r\n',header{:});
+if part == 1
+    fprintf(outputFile,'%s\t%s\t%s\t%s\t%s\t%s\r\n',header{:});
+end
 fclose(outputFile);
 
 %% Define stimulation
