@@ -94,7 +94,7 @@ outputFileName = strcat(subjectID,'_results.tsv');
 outputFileName = strcat('tacs-social-norms\experiments-master\Matt\fairnessherding\output\',outputFileName);
 fhg.fileName = outputFileName;
 % Save header to output file
-header = 'Stim\tSocial\tHerd\tOffer\tChoice\r\n';
+header = 'Stim\tSocial\tHerd\tOffer\tChoice\tRT\r\n';
 outputFile = fopen(outputFileName,'a'); 
 fprintf(outputFile,header);
 fclose(outputFile);

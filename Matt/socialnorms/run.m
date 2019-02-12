@@ -94,7 +94,7 @@ outputFileName = strcat(subjectID,'_results.tsv');
 outputFileName = strcat('tacs-social-norms\experiments-master\Matt\socialnorms\output\',outputFileName);
 sng.fileName = outputFileName;
 % Save header to output file
-header = 'Stim\tSocial\tPunishment\tOffer\tChoice\tPunishment\r\n';
+header = 'Stim\tSocial\tPunishment\tOffer\tChoice\tPunishment\tRT\r\n';
 outputFile = fopen(outputFileName,'a'); 
 fprintf(outputFile,header);
 fclose(outputFile);

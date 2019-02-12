@@ -19,10 +19,10 @@ function  c = run_split
 % acTpjBlock = 1&5, acVLPFCBlock = 2&6, acSyncBlock = 3&7, shamBlock = 4&8.
 % 
 % BK - Feb 2017, MS - modified Feb. 2019
-import neurostim.*;  
+import neurostim.*;
 
 %% General Parameters
-subjectID    = '001';
+subjectID    = '013';
 part         = 2;
 hostNameOrIP = '10.109.14.164';
 practice     = false;
@@ -182,7 +182,7 @@ blockType = block.empty(0,NUMBER_BLOCKS);
 stimConditions = []; 
 
 mySquare = latinSquare(8);
-stimBlockOrder = mySquare(mod(str2num(subjectID),8),:);
+stimBlockOrder = mySquare(mod(str2num(subjectID),8)+1,:);
 if part == 1
     stimBlockOrder = [stimBlockOrder(1) stimBlockOrder(2) stimBlockOrder(3)...
         stimBlockOrder(4)];
