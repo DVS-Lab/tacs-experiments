@@ -159,7 +159,6 @@ TrialNumber	BlockNumber	StimulationCondition	Choice	Payout	PlayerReactionTime
 158	4	4	Low	0	382.1466
 159	4	4	Low	1	265.58
 160	4	4	High	1	298.8848
-TrialNumber	BlockNumber	StimulationCondition	Choice	Payout	PlayerReactionTime
 1	5	5	Low	0	532.0826
 2	5	5	High	0	398.858
 3	5	5	High	1	532.0826
