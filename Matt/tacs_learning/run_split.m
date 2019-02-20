@@ -69,7 +69,9 @@ c.trialDuration = '@game.decisionDuration + game.itiDuration';
 ssmg = simpleslotmachinegame(c,'game');
 ssmg.decisionDuration = decisionDuration;
 ssmg.itiDuration      = itiDuration;
-
+if part = 2
+    ssmg.trialCounter = NUMBER_BLOCKS*TRIALS_PER_BLOCK;
+end
 %% Get Slot Machine Images
 path = 'C:\Users\tuf91673\Documents\MATLAB\tacs-social-norms\experiments-master\Matt\tacs_learning\images';
 imagesRaw = dir(fullfile(path, '*.jpg'));
