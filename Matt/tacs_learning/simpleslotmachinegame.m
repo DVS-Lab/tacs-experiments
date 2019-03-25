@@ -149,7 +149,7 @@ classdef simpleslotmachinegame < neurostim.stimulus
             
             %% No Response Check
             % Still no guess since preround screen, list as n/a
-            if ~o.chose && (now > 0.99*(o.itiDuration + o.decisionDuration))
+            if ~o.trialLogged && ~o.chose && (now > 0.99*(o.itiDuration + o.decisionDuration))
                 o.playerChoice = 'n/a';
                 gotPayout = 0;
                 % Log choice(machine type), outcome(if got money), 
