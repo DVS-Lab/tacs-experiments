@@ -69,7 +69,7 @@ c.trialDuration = '@game.decisionDuration + game.itiDuration';
 ssmg = simpleslotmachinegame(c,'game');
 ssmg.decisionDuration = decisionDuration;
 ssmg.itiDuration      = itiDuration;
-if part = 2
+if part == 2
     ssmg.trialCounter = NUMBER_BLOCKS*TRIALS_PER_BLOCK;
 end
 %% Get Slot Machine Images
