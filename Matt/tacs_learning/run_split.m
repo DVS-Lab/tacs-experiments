@@ -22,7 +22,7 @@ function  c = run_split
 import neurostim.*;
 
 %% General Parameters
-subjectID    = '013';
+subjectID    = '999';
 part         = 2;
 hostNameOrIP = '10.109.14.164';
 practice     = false;
@@ -74,6 +74,9 @@ if part == 2
 end
 %% Get Slot Machine Images
 path = 'C:\Users\tuf91673\Documents\MATLAB\tacs-social-norms\experiments-master\Matt\tacs_learning\images';
+if part == 2
+    strcat(path,'2');
+end
 imagesRaw = dir(fullfile(path, '*.jpg'));
 images = fullfile(path, {imagesRaw.name});
 
@@ -96,6 +99,9 @@ for i = 1:NUMBER_BLOCKS
         blockFiles = [blockFiles;sortedMachineFilePaths(i,:)];
     end
     machineFiles = [machineFiles;blockFiles];
+end
+if part == 2
+    machineFiles = [machineFiles; machineFiles];
 end
 ssmg.imageFiles = machineFiles;
 moneyImage = imread('images/coin.png');
@@ -189,12 +195,13 @@ if part == 1
     stimBlockOrder = [stimBlockOrder(1) stimBlockOrder(2) stimBlockOrder(3)...
         stimBlockOrder(4)];
 else
-    stimBlockOrder = [stimBlockOrder(5) stimBlockOrder(6)...
-        stimBlockOrder(7) stimBlockOrder(8)];
+    stimBlockOrder = [stimBlockOrder(1) stimBlockOrder(2) stimBlockOrder(3)...
+                    stimBlockOrder(4) stimBlockOrder(5) stimBlockOrder(6)...
+                    stimBlockOrder(7) stimBlockOrder(8)];
 end
 
 % Populate blockOrder array based on stimBlockOrder.
-for blockTypeIndex = 1:NUMBER_BLOCKS
+for blockTypeIndex = 1:NUMBER_BLOCKS*part
     switch stimBlockOrder(blockTypeIndex)
         case 1
             blockType(blockTypeIndex) = acTpjBlock;
@@ -240,7 +247,7 @@ leftPositions = ones(TRIALS_PER_BLOCK/2,1);
 rightPositions = 2*ones(TRIALS_PER_BLOCK/2,1);
 positions = [leftPositions;rightPositions];
 trialPositions = [];
-for i = 1:NUMBER_BLOCKS
+for i = 1:NUMBER_BLOCKS*part
     rng('shuffle');
     trialPositions = [trialPositions;Shuffle(positions)];
 end
@@ -255,7 +262,9 @@ if part == 1
     trialBlockNumber = [ones(TRIALS_PER_BLOCK,1);2*ones(TRIALS_PER_BLOCK,1);...
                     3*ones(TRIALS_PER_BLOCK,1);4*ones(TRIALS_PER_BLOCK,1)];
 else
-    trialBlockNumber = [5*ones(TRIALS_PER_BLOCK,1);6*ones(TRIALS_PER_BLOCK,1);...
+    trialBlockNumber = [ones(TRIALS_PER_BLOCK,1);2*ones(TRIALS_PER_BLOCK,1);...
+                    3*ones(TRIALS_PER_BLOCK,1);4*ones(TRIALS_PER_BLOCK,1);...
+                    5*ones(TRIALS_PER_BLOCK,1);6*ones(TRIALS_PER_BLOCK,1);...
                     7*ones(TRIALS_PER_BLOCK,1);8*ones(TRIALS_PER_BLOCK,1)];
 end
 

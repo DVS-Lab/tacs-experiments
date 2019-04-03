@@ -70,6 +70,9 @@ classdef simpleslotmachinegame < neurostim.stimulus
         % reset appropriate fields.
         function beforeTrial(o,~,~)
             o.trialCounter = o.trialCounter + 1;
+            if o.trialCounter == 321
+                quit;
+            end
             % Reset Fields
             o.trialLogged = false;
             o.chose = false; 
